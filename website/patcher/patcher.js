@@ -581,6 +581,9 @@ const UF2_MAGIC_END = 0x0AB16F30 // Ditto
 const CFG_MAGIC0 = 0x1e9e10f1
 const CFG_MAGIC1 = 0x20227a79
 
+const PICO_CFG_MAGIC0 = 0xadd6ec3d
+const PICO_CFG_MAGIC1 = 0x60277988
+
 let all_defines = {}
 
 function configkeysH() {
@@ -782,7 +785,13 @@ function readWriteConfig(buf, patch) {
             payloadLen = read32(buf, off + 16)
             addr = read32(buf, off + 12) - 32
         }
-
+        if(off == buf.length-1 &&
+           read32(buf, off + start) == PICO_CFG_MAGIC0 &&
+           read32(buf, off + start + 4) == PICO_CFG_MAGIC0) {
+            log(`Found pico config data!`)
+            patchPtr
+        }
+/*
         for (let i = start; i < start + payloadLen; i += 4) {
             if (read32(buf, off + i) == CFG_MAGIC0 &&
                 read32(buf, off + i + 4) == CFG_MAGIC1) {
@@ -799,26 +808,8 @@ function readWriteConfig(buf, patch) {
                     }
                 }
             }
-
-            if (patchPtr !== null) {
-                if (patchPtr == -2) {
-                    cfgLen = read32(buf, off + i)
-                    if (patch)
-                        write32(buf, off + i, (patch.length >> 1) - 1)
-                }
-
-                if (patchPtr >= 0) {
-                    if (origData.length < cfgLen * 2 + 40)
-                        origData.push(read32(buf, off + i))
-                    if (patch) {
-                        if (patchPtr < patch.length) {
-                            write32(buf, off + i, patch[patchPtr])
-                        }
-                    }
-                }
-                patchPtr++
-            }
         }
+*/
     }
 
     let len0 = cfgLen * 2
