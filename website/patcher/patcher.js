@@ -743,39 +743,61 @@ function stringToBuf(str) {
         buf[i] = str.charCodeAt(i)
     return buf
 }
-
+//***************************************************************************************************************** */
+//***************************************************************************************************************** */
+//***************************************************************************************************************** */
+//***************************************************************************************************************** */
 function readWriteConfig(buf, patch) {
     let patchPtr = null
     let origData = []
     let cfgLen = 0
     let isUF2 = false
-    if (read32(buf, 0) == UF2_MAGIC_START0) {
+    if (read32(buf, 0) != UF2_MAGIC_START0 ||
+        read32(buf, 4) != UF2_MAGIC_START1) {
         isUF2 = true
         log("detected UF2 file")
-    } else {
-        let stackBase = read32(buf, 0)
-        if ((stackBase & 0xff000003) == 0x20000000 &&
-            (read32(buf, 4) & 1) == 1) {
-            log("detected BIN file")
-        } else {
-            let str = bufToString(buf)
-            if (str.indexOf("/* CF2 START") >= 0) {
-                log("detected CF2 header file")
-                let rr = patchHFile(str, patch)
-                console.log(rr.data)
-                return patch ? stringToBuf(rr.patched) : rr.data
-            } else {
-                err("unknown file format")
-            }
-        }
+        start = 32
+        payloadLen = read32(buf, 16)
+        addr = read32(buf, 12) - 32
     }
     if (patch)
         patch.push(0, 0)
+
+    
+    //Check if patch data already exists
+    if(read32(buf, uf.length-1 + start) == PICO_CFG_MAGIC0 &&
+       read32(buf, uf.length-1 + start + 4) == PICO_CFG_MAGIC0) {
+         log(`Found pico config data!`)
+         if(patch)
+         {
+             log(`Patching preexisting data!`)
+             for (let i = start + 8; i < start + payloadLen; i += 4)
+             {
+                 if(i-(start+8) < patch.length)
+                     write32(buf, uf.length-1 + i, patch[i-(start+8)])
+                 else
+                     write32(buf, uf.length-1 + i, 0)
+             }
+         }
+    }
+    else if (patch)
+    {
+        //There isn't prexisting config data, we need to add our own
+        for (let off = 0; off < buf.length; off += 512) {
+            let start = 0
+            let payloadLen = 512
+            let addr = off
+
+
+        }
+    }
+
+    /*
     for (let off = 0; off < buf.length; off += 512) {
         let start = 0
         let payloadLen = 512
         let addr = off
-
+        /*
         if (isUF2) {
             start = 32
             if (read32(buf, off) != UF2_MAGIC_START0 ||
@@ -789,9 +811,21 @@ function readWriteConfig(buf, patch) {
            read32(buf, off + start) == PICO_CFG_MAGIC0 &&
            read32(buf, off + start + 4) == PICO_CFG_MAGIC0) {
             log(`Found pico config data!`)
-            patchPtr
-        }
+            if(patch)
+            {
+                log(`Patching preexisting data!`)
+                for (let i = start + 8; i < start + payloadLen; i += 4)
+                {
+                    if(i-(start+8) < patch.length)
+                        write32(buf, off + i, patch[i-(start+8)])
+                    else
+                        write32(buf, off + i, 0)
+                }
+            }
+        }*/
+        
 /*
+
         for (let i = start; i < start + payloadLen; i += 4) {
             if (read32(buf, off + i) == CFG_MAGIC0 &&
                 read32(buf, off + i + 4) == CFG_MAGIC1) {
@@ -807,6 +841,25 @@ function readWriteConfig(buf, patch) {
                         log(`Skipping second CFG DATA at ${addrS}`)
                     }
                 }
+            }
+
+            if (patchPtr !== null) {
+                if (patchPtr == -2) {
+                    cfgLen = read32(buf, off + i)
+                    if (patch)
+                        write32(buf, off + i, (patch.length >> 1) - 1)
+                }
+
+                if (patchPtr >= 0) {
+                    if (origData.length < cfgLen * 2 + 40)
+                        origData.push(read32(buf, off + i))
+                    if (patch) {
+                        if (patchPtr < patch.length) {
+                            write32(buf, off + i, patch[patchPtr])
+                        }
+                    }
+                }
+                patchPtr++
             }
         }
 */
@@ -830,6 +883,10 @@ function readWriteConfig(buf, patch) {
     origData = origData.slice(0, origData.length - 2)
     return patch ? buf : origData
 }
+//***************************************************************************************************************** */
+//***************************************************************************************************************** */
+//***************************************************************************************************************** */
+//***************************************************************************************************************** */
 
 function lookupCfg(cfgdata, key) {
     for (let i = 0; i < cfgdata.length; i += 2)
@@ -992,6 +1049,10 @@ function parsePinName(v, portSize) {
     return undefined
 }
 
+//***************************************************************************************************************** */
+//***************************************************************************************************************** */
+//***************************************************************************************************************** */
+//***************************************************************************************************************** */
 function patchConfig(buf, cfg) {
     init()
     const cfgMap = {}
@@ -1104,6 +1165,10 @@ function patchConfig(buf, cfg) {
         patched
     }
 }
+//***************************************************************************************************************** */
+//***************************************************************************************************************** */
+//***************************************************************************************************************** */
+//***************************************************************************************************************** */
 
 function parseHFile(hFile) {
     if (!hFile) return
