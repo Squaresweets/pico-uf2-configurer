@@ -1,8 +1,7 @@
 "use strict";
 
 // copy entire configkeys.h from https://github.com/microsoft/pxt-common-packages/blob/master/libs/base/configkeys.h
-const CONFIG_KEYS_H =
-    `
+const CONFIG_KEYS_H = `
 #ifndef __PXT_CONFIGKEYS_H
 #define __PXT_CONFIGKEYS_H
 
@@ -481,318 +480,328 @@ const CONFIG_KEYS_H =
 #define CFG_PIN_JDPWR_FAULT 1105
 
 #endif
-`
+`;
 
-const configKeys = {}
-CONFIG_KEYS_H.replace(/#define\s+CFG_(\w+)\s+(\w+)/g, function (m, name, value) {
-    configKeys[name] = parseInt(value);
-    return "";
-})
+const configKeys = {};
+CONFIG_KEYS_H.replace(/#define\s+CFG_(\w+)\s+(\w+)/g, function(m, name, value) {
+  configKeys[name] = parseInt(value);
+  return "";
+});
 
 const enums = {
-    // these are the same as the default I2C ID
-    ACCELEROMETER_TYPE: {
-        LIS3DH: 0x32,
-        LIS3DH_ALT: 0x30,
-        MMA8453: 0x38,
-        FXOS8700: 0x3C,
-        MMA8653: 0x3A,
-        MSA300: 0x4C,
-        MPU6050: 0x68,
-    },
-    UF2_FAMILY: {
-        ATSAMD21: 0x68ed2b88,
-        ATSAML21: 0x1851780a,
-        ATSAMD51: 0x55114460,
-        NRF52840: 0x1b57745f,
-        STM32F103: 0x5ee21072,
-        STM32F401: 0x57755a57,
-        ATMEGA32: 0x16573617,
-        CYPRESS_FX2: 0x5a18069b,
-    },
-    PINS_PORT_SIZE: {
-        PA_16: 0x10, // PA00-PA15, PB00-PB15, ... - STM32
-        PA_32: 0x20, // PA00-PA31, ... - ATSAMD
-        P0_16: 0x1010, // P0_0-P0_15, P1_0-P1_15, ...
-        P0_32: 0x1020, // P0_0-P0_32, ... - NRF
-    },
-    DEFAULT_BUTTON_MODE: {
-        ACTIVE_HIGH_PULL_DOWN: 0x11,
-        ACTIVE_HIGH_PULL_UP: 0x21,
-        ACTIVE_HIGH_PULL_NONE: 0x31,
-        ACTIVE_LOW_PULL_DOWN: 0x10,
-        ACTIVE_LOW_PULL_UP: 0x20,
-        ACTIVE_LOW_PULL_NONE: 0x30,
-    },
-    DISPLAY_TYPE: {
-        ST7735: 7735,
-        ILI9341: 9341,
-    },
-    ".": {
-        BTN_FLAG_ACTIVE_HIGH: 0x110000,
-        BTN_FLAG_ACTIVE_LOW: 0x200000,
-        BTN_OFFSET_ANALOG_PLUS: 1100,
-        BTN_OFFSET_ANALOG_MINUS: 1200,
-    }
-}
+  // these are the same as the default I2C ID
+  ACCELEROMETER_TYPE: {
+    LIS3DH: 0x32,
+    LIS3DH_ALT: 0x30,
+    MMA8453: 0x38,
+    FXOS8700: 0x3c,
+    MMA8653: 0x3a,
+    MSA300: 0x4c,
+    MPU6050: 0x68
+  },
+  UF2_FAMILY: {
+    ATSAMD21: 0x68ed2b88,
+    ATSAML21: 0x1851780a,
+    ATSAMD51: 0x55114460,
+    NRF52840: 0x1b57745f,
+    STM32F103: 0x5ee21072,
+    STM32F401: 0x57755a57,
+    ATMEGA32: 0x16573617,
+    CYPRESS_FX2: 0x5a18069b
+  },
+  PINS_PORT_SIZE: {
+    PA_16: 0x10, // PA00-PA15, PB00-PB15, ... - STM32
+    PA_32: 0x20, // PA00-PA31, ... - ATSAMD
+    P0_16: 0x1010, // P0_0-P0_15, P1_0-P1_15, ...
+    P0_32: 0x1020 // P0_0-P0_32, ... - NRF
+  },
+  DEFAULT_BUTTON_MODE: {
+    ACTIVE_HIGH_PULL_DOWN: 0x11,
+    ACTIVE_HIGH_PULL_UP: 0x21,
+    ACTIVE_HIGH_PULL_NONE: 0x31,
+    ACTIVE_LOW_PULL_DOWN: 0x10,
+    ACTIVE_LOW_PULL_UP: 0x20,
+    ACTIVE_LOW_PULL_NONE: 0x30
+  },
+  DISPLAY_TYPE: {
+    ST7735: 7735,
+    ILI9341: 9341
+  },
+  ".": {
+    BTN_FLAG_ACTIVE_HIGH: 0x110000,
+    BTN_FLAG_ACTIVE_LOW: 0x200000,
+    BTN_OFFSET_ANALOG_PLUS: 1100,
+    BTN_OFFSET_ANALOG_MINUS: 1200
+  }
+};
 
-
-let infoMsg = ""
+let infoMsg = "";
 
 function log(msg) {
-    msg = "# " + msg
-    infoMsg += msg + "\n"
-    console.log(msg)
+  msg = "# " + msg;
+  infoMsg += msg + "\n";
+  console.log(msg);
 }
 
 function help() {
-    console.log(`
+  console.log(`
 USAGE: node patch-cfg.js file.uf2 [patch.cf2]
 
 Without .cf2 file, it will parse config in the UF2 file and print it out
 (in .cf2 format).
 
 With .cf2 file, it will patch in-place the UF2 file with specified config.
-`)
-    process.exit(1)
+`);
+  process.exit(1);
 }
 
 function readBin(fn) {
-    const fs = require("fs")
+  const fs = require("fs");
 
-    if (!fn) {
-        console.log("Required argument missing.")
-        help()
-    }
+  if (!fn) {
+    console.log("Required argument missing.");
+    help();
+  }
 
-    try {
-        return fs.readFileSync(fn)
-    } catch (e) {
-        console.log("Cannot read file '" + fn + "': " + e.message)
-        help()
-    }
+  try {
+    return fs.readFileSync(fn);
+  } catch (e) {
+    console.log("Cannot read file '" + fn + "': " + e.message);
+    help();
+  }
 }
-const configInvKeys = {}
+const configInvKeys = {};
 
-const UF2_MAGIC_START0 = 0x0A324655 // "UF2\n"
-const UF2_MAGIC_START1 = 0x9E5D5157 // Randomly selected
-const UF2_MAGIC_END = 0x0AB16F30 // Ditto
+const UF2_MAGIC_START0 = 0x0a324655; // "UF2\n"
+const UF2_MAGIC_START1 = 0x9e5d5157; // Randomly selected
+const UF2_MAGIC_END = 0x0ab16f30; // Ditto
 
-const CFG_MAGIC0 = 0x1e9e10f1
-const CFG_MAGIC1 = 0x20227a79
+const CFG_MAGIC0 = 0x1e9e10f1;
+const CFG_MAGIC1 = 0x20227a79;
 
-const PICO_CFG_MAGIC0 = 0xadd6ec3d
-const PICO_CFG_MAGIC1 = 0x60277988
+const PICO_CFG_MAGIC0 = 0xadd6ec3d;
+const PICO_CFG_MAGIC1 = 0x60277988;
 
-let all_defines = {}
+let all_defines = {};
 
 function configkeysH() {
-    let r = "#ifndef __CONFIGKEYS_H\n#define __CONFIGKEYS_H 1\n\n"
+  let r = "#ifndef __CONFIGKEYS_H\n#define __CONFIGKEYS_H 1\n\n";
 
-    const add = (k, v) => {
-        all_defines[k] = v
-        if (v > 1000 || !/^CFG_/.test(k))
-            v = "0x" + v.toString(16)
-        else
-            v += ""
-        r += "#define " + k + " " + v + "\n"
-    }
+  const add = (k, v) => {
+    all_defines[k] = v;
+    if (v > 1000 || !/^CFG_/.test(k)) v = "0x" + v.toString(16);
+    else v += "";
+    r += "#define " + k + " " + v + "\n";
+  };
 
-    add("CFG_MAGIC0", CFG_MAGIC0)
-    add("CFG_MAGIC1", CFG_MAGIC1)
-    r += "\n"
+  add("CFG_MAGIC0", CFG_MAGIC0);
+  add("CFG_MAGIC1", CFG_MAGIC1);
+  r += "\n";
 
-    for (let k of Object.keys(configKeys)) {
-        add("CFG_" + k, configKeys[k])
+  for (let k of Object.keys(configKeys)) {
+    add("CFG_" + k, configKeys[k]);
+  }
+  for (let k of Object.keys(enums)) {
+    r += "\n";
+    for (let kk of Object.keys(enums[k])) {
+      let n = k == "." ? kk : `${k}_${kk}`;
+      add(n, enums[k][kk]);
     }
-    for (let k of Object.keys(enums)) {
-        r += "\n"
-        for (let kk of Object.keys(enums[k])) {
-            let n = k == "." ? kk : `${k}_${kk}`
-            add(n, enums[k][kk])
-        }
-    }
-    r += "\n#endif // __CONFIGKEYS_H\n"
-    return r
+  }
+  r += "\n#endif // __CONFIGKEYS_H\n";
+  return r;
 }
 
 function err(msg) {
-    log("Fatal error: " + msg)
-    if (typeof window == "undefined") {
-        process.exit(1)
-    } else {
-        throw new Error(msg)
-    }
+  log("Fatal error: " + msg);
+  if (typeof window == "undefined") {
+    process.exit(1);
+  } else {
+    throw new Error(msg);
+  }
 }
 
 function read32(buf, off) {
-    return (buf[off + 0] | (buf[off + 1] << 8) | (buf[off + 2] << 16) | (buf[off + 3] << 24)) >>> 0
+  return (
+    (buf[off + 0] |
+      (buf[off + 1] << 8) |
+      (buf[off + 2] << 16) |
+      (buf[off + 3] << 24)) >>>
+    0
+  );
 }
 
 function write32(buf, off, v) {
-    buf[off + 0] = v & 0xff
-    buf[off + 1] = (v >> 8) & 0xff
-    buf[off + 2] = (v >> 16) & 0xff
-    buf[off + 3] = (v >> 24) & 0xff
+  buf[off + 0] = v & 0xff;
+  buf[off + 1] = (v >> 8) & 0xff;
+  buf[off + 2] = (v >> 16) & 0xff;
+  buf[off + 3] = (v >> 24) & 0xff;
 }
 
 function patchHFile(file, patch) {
-    configkeysH()
-    let resFile = ""
-    let inZone = false
-    let flags = {}
-    let lineNo = 0
-    let nums = []
-    for (let line0 of file.split(/\n/)) {
-        lineNo++
-        let append = line0 + "\n"
-        let line = line0.trim().replace(/\/\/.*/, "")
-        if (inZone) {
-            if (line.indexOf("/* CF2 END */") >= 0) {
-                inZone = false
-                if (patch) {
-                    let portSize = lookupCfg(patch, configKeys.PINS_PORT_SIZE)
-                    let s = ""
-                    let size = flags["size"] || 100
-                    let numentries = patch.length >> 1
-                    size = Math.max(size, numentries + 4)
-                    s += `    ${CFG_MAGIC0}, ${CFG_MAGIC1}, // magic\n`
-                    s += `    ${numentries}, ${size},  // used entries, total entries\n`
-                    for (let i = 0; i < numentries; ++i) {
-                        let k = patch[i * 2]
-                        let v = patch[i * 2 + 1]
-                        s += `    ${k}, 0x${v.toString(16)}, // ${showKV(k, v, portSize, patch)}\n`
-                    }
-                    s += "   "
-                    for (let i = 0; i < size - numentries; ++i) {
-                        if (i && i % 16 == 0)
-                            s += "\n   "
-                        s += " 0, 0,"
-                    }
-                    s += "\n"
-                    append = s + line0 + "\n"
-                }
-            } else {
-                append = ""
-                let toks = line.split(/,\s*/).map(s => s.trim()).filter(s => !!s)
-                for (let tok of toks) {
-                    let n = parseInt(tok)
-                    if (isNaN(n)) {
-                        n = all_defines[tok]
-                        if (n === undefined) {
-                            let portSize = lookupCfg(nums, configKeys.PINS_PORT_SIZE)
-                            if (portSize) portSize &= 0xfff;
-                            let pp = parsePinName(tok.replace(/^PIN_/, ""), portSize)
-                            if (pp !== undefined) {
-                                n = pp
-                            } else {
-                                err(`unknown value ${tok} at line ${lineNo}`)
-                            }
-                        }
-                    }
-                    nums.push(n)
-                }
-            }
-        } else {
-            let m = /\/\* CF2 START (.*)/.exec(line)
-            if (m) {
-                inZone = true
-                for (let k of m[1].split(/\s+/)) {
-                    let mm = /^(\w+)=(\d+)$/.exec(k)
-                    if (mm)
-                        flags[mm[1]] = parseInt(mm[2])
-                    else
-                        flags[k] = true
-                }
-            }
+  configkeysH();
+  let resFile = "";
+  let inZone = false;
+  let flags = {};
+  let lineNo = 0;
+  let nums = [];
+  for (let line0 of file.split(/\n/)) {
+    lineNo++;
+    let append = line0 + "\n";
+    let line = line0.trim().replace(/\/\/.*/, "");
+    if (inZone) {
+      if (line.indexOf("/* CF2 END */") >= 0) {
+        inZone = false;
+        if (patch) {
+          let portSize = lookupCfg(patch, configKeys.PINS_PORT_SIZE);
+          let s = "";
+          let size = flags["size"] || 100;
+          let numentries = patch.length >> 1;
+          size = Math.max(size, numentries + 4);
+          s += `    ${CFG_MAGIC0}, ${CFG_MAGIC1}, // magic\n`;
+          s += `    ${numentries}, ${size},  // used entries, total entries\n`;
+          for (let i = 0; i < numentries; ++i) {
+            let k = patch[i * 2];
+            let v = patch[i * 2 + 1];
+            s += `    ${k}, 0x${v.toString(16)}, // ${showKV(
+              k,
+              v,
+              portSize,
+              patch
+            )}\n`;
+          }
+          s += "   ";
+          for (let i = 0; i < size - numentries; ++i) {
+            if (i && i % 16 == 0) s += "\n   ";
+            s += " 0, 0,";
+          }
+          s += "\n";
+          append = s + line0 + "\n";
         }
-        resFile += append
-    }
-
-    if (nums.length) {
-        if (nums[0] != CFG_MAGIC0 || nums[1] != CFG_MAGIC1)
-            err("no magic in H file")
-        nums = nums.slice(4)
-        for (let i = 0; i < nums.length; i += 2) {
-            if (nums[i] == 0) {
-                if (nums.slice(i).some(x => x != 0))
-                    err("config keys follow zero terminator")
-                else
-                    nums = nums.slice(0, i)
-                break
+      } else {
+        append = "";
+        let toks = line
+          .split(/,\s*/)
+          .map(s => s.trim())
+          .filter(s => !!s);
+        for (let tok of toks) {
+          let n = parseInt(tok);
+          if (isNaN(n)) {
+            n = all_defines[tok];
+            if (n === undefined) {
+              let portSize = lookupCfg(nums, configKeys.PINS_PORT_SIZE);
+              if (portSize) portSize &= 0xfff;
+              let pp = parsePinName(tok.replace(/^PIN_/, ""), portSize);
+              if (pp !== undefined) {
+                n = pp;
+              } else {
+                err(`unknown value ${tok} at line ${lineNo}`);
+              }
             }
+          }
+          nums.push(n);
         }
+      }
+    } else {
+      let m = /\/\* CF2 START (.*)/.exec(line);
+      if (m) {
+        inZone = true;
+        for (let k of m[1].split(/\s+/)) {
+          let mm = /^(\w+)=(\d+)$/.exec(k);
+          if (mm) flags[mm[1]] = parseInt(mm[2]);
+          else flags[k] = true;
+        }
+      }
     }
+    resFile += append;
+  }
 
-    return {
-        patched: resFile,
-        data: nums
+  if (nums.length) {
+    if (nums[0] != CFG_MAGIC0 || nums[1] != CFG_MAGIC1)
+      err("no magic in H file");
+    nums = nums.slice(4);
+    for (let i = 0; i < nums.length; i += 2) {
+      if (nums[i] == 0) {
+        if (nums.slice(i).some(x => x != 0))
+          err("config keys follow zero terminator");
+        else nums = nums.slice(0, i);
+        break;
+      }
     }
+  }
+
+  return {
+    patched: resFile,
+    data: nums
+  };
 }
 
 function bufToString(buf) {
-    let s = ""
-    for (let i = 0; i < buf.length; ++i)
-        s += String.fromCharCode(buf[i])
-    return s
+  let s = "";
+  for (let i = 0; i < buf.length; ++i) s += String.fromCharCode(buf[i]);
+  return s;
 }
 
 function stringToBuf(str) {
-    let buf = new Uint8Array(str.length)
-    for (let i = 0; i < buf.length; ++i)
-        buf[i] = str.charCodeAt(i)
-    return buf
+  let buf = new Uint8Array(str.length);
+  for (let i = 0; i < buf.length; ++i) buf[i] = str.charCodeAt(i);
+  return buf;
 }
 //***************************************************************************************************************** */
 //***************************************************************************************************************** */
 //***************************************************************************************************************** */
 //***************************************************************************************************************** */
 function readWriteConfig(buf, patch) {
-    let patchPtr = null
-    let origData = []
-    let cfgLen = 0
-    let isUF2 = false
-    if (read32(buf, 0) != UF2_MAGIC_START0 ||
-        read32(buf, 4) != UF2_MAGIC_START1) {
-        isUF2 = true
-        log("detected UF2 file")
-        start = 32
-        payloadLen = read32(buf, 16)
-        addr = read32(buf, 12) - 32
+  let patchPtr = null;
+  let origData = [];
+  let cfgLen = 0;
+  let isUF2 = false;
+  let start = 32;
+  if (
+    read32(buf, 0) != UF2_MAGIC_START0 ||
+    read32(buf, 4) != UF2_MAGIC_START1
+  ) {
+    isUF2 = true;
+    log("detected UF2 file");
+    payloadLen = read32(buf, 16);
+    addr = read32(buf, 12) - 32;
+  }
+  if (patch) patch.push(0, 0);
+
+  //Check if patch data already exists
+  if (
+    read32(buf, buf.length - 1 + start) == PICO_CFG_MAGIC0 &&
+    read32(buf, buf.length - 1 + start + 4) == PICO_CFG_MAGIC0
+  ) {
+    log(`Found pico config data!`);
+    if (patch) {
+      log(`Patching pre-existing data!`);
+      for (let i = start + 8; i < start + payloadLen; i += 4) {
+        if (i - (start + 8) < patch.length)
+          write32(buf, buf.length - 1 + i, patch[i - (start + 8)]);
+        else write32(buf, buf.length - 1 + i, 0);
+      }
     }
-    if (patch)
-        patch.push(0, 0)
+  } else if (patch) {
+    let BlocksNum = buf.length / 512;
+    let newBlocksSum = BlocksNum + 1;
+    //There isn't pre-existing config data, we need to add our own
+    for (let off = 0; off < buf.length; off += 512)
+      write32(buf, off + 24, newBlocksSum); //Update the total blocks number for each block
+    let NewBytesOff = buf.length;
+    for (let i = 0; i < 512; i += 1) buf.push(buf[i]); //Copy the first 512 bytes and put them at the end
+    //Change sequential byte number
+    write32(buf, NewBytesOff + 20, BlocksNum);
+    //Set where the data should go (one more than the last one)
+    write32(buf, NewBytesOff + 12, 0x10000000 + (BlocksNum << 8));
 
-    
-    //Check if patch data already exists
-    if(read32(buf, uf.length-1 + start) == PICO_CFG_MAGIC0 &&
-       read32(buf, uf.length-1 + start + 4) == PICO_CFG_MAGIC0) {
-         log(`Found pico config data!`)
-         if(patch)
-         {
-             log(`Patching preexisting data!`)
-             for (let i = start + 8; i < start + payloadLen; i += 4)
-             {
-                 if(i-(start+8) < patch.length)
-                     write32(buf, uf.length-1 + i, patch[i-(start+8)])
-                 else
-                     write32(buf, uf.length-1 + i, 0)
-             }
-         }
-    }
-    else if (patch)
-    {
-        //There isn't prexisting config data, we need to add our own
-        for (let off = 0; off < buf.length; off += 512) {
-            let start = 0
-            let payloadLen = 512
-            let addr = off
+    for (let i = 0; i < 476; i += 1) buf[NewBytesOff + 0x20 + i] = 0; //Blank out data section
 
+    for (let i = 0; i < patch.length; i += 1)
+      buf[NewBytesOff + 0x20 + i] = patch[i]; //Add our patch
+  }
 
-        }
-    }
-
-    /*
+  /*
     for (let off = 0; off < buf.length; off += 512) {
         let start = 0
         let payloadLen = 512
@@ -823,8 +832,8 @@ function readWriteConfig(buf, patch) {
                 }
             }
         }*/
-        
-/*
+
+  /*
 
         for (let i = start; i < start + payloadLen; i += 4) {
             if (read32(buf, off + i) == CFG_MAGIC0 &&
@@ -862,9 +871,9 @@ function readWriteConfig(buf, patch) {
                 patchPtr++
             }
         }
-*/
     }
-
+*/
+  /*
     let len0 = cfgLen * 2
     origData.push(0, 0)
     while (origData[len0])
@@ -880,8 +889,8 @@ function readWriteConfig(buf, patch) {
     let tail = origData.slice(origData.length - 2)
     if (tail.some(x => x != 0))
         err("config data not zero terminated: " + tail.join(","))
-    origData = origData.slice(0, origData.length - 2)
-    return patch ? buf : origData
+    origData = origData.slice(0, origData.length - 2)*/
+  return buf;
 }
 //***************************************************************************************************************** */
 //***************************************************************************************************************** */
@@ -889,164 +898,153 @@ function readWriteConfig(buf, patch) {
 //***************************************************************************************************************** */
 
 function lookupCfg(cfgdata, key) {
-    for (let i = 0; i < cfgdata.length; i += 2)
-        if (cfgdata[i] == key)
-            return cfgdata[i + 1]
-    return null
+  for (let i = 0; i < cfgdata.length; i += 2)
+    if (cfgdata[i] == key) return cfgdata[i + 1];
+  return null;
 }
 
 function pinToString(pinNo, portSize) {
-    if (!portSize || pinNo >= 1000)
-        return "P_" + pinNo
+  if (!portSize || pinNo >= 1000) return "P_" + pinNo;
 
-    let useLetters = true
-    let theSize = portSize & 0xfff
-    if (portSize & 0x1000) {
-        useLetters = true
-    }
-    let port = (pinNo / theSize) | 0
-    let pin = pinNo % theSize
-    if (useLetters) {
-        return "P" + String.fromCharCode(65 + port) + ("0" + pin.toString()).slice(-2)
-    } else {
-        return "P" + port + "_" + pin
-    }
+  let useLetters = true;
+  let theSize = portSize & 0xfff;
+  if (portSize & 0x1000) {
+    useLetters = true;
+  }
+  let port = (pinNo / theSize) | 0;
+  let pin = pinNo % theSize;
+  if (useLetters) {
+    return (
+      "P" + String.fromCharCode(65 + port) + ("0" + pin.toString()).slice(-2)
+    );
+  } else {
+    return "P" + port + "_" + pin;
+  }
 }
 
 function isHeaderPin(n) {
-    return /^PIN_(MOSI|MISO|SCK|SDA|SCL|RX|TX|[AD]\d+)$/.test(n)
+  return /^PIN_(MOSI|MISO|SCK|SDA|SCL|RX|TX|[AD]\d+)$/.test(n);
 }
 
 function keyWeight(k) {
-    if (k == "PINS_PORT_SIZE")
-        return 10
-    if (isHeaderPin(k))
-        return 20
-    if (/^PIN_/.test(k))
-        return 30
-    return 40
+  if (k == "PINS_PORT_SIZE") return 10;
+  if (isHeaderPin(k)) return 20;
+  if (/^PIN_/.test(k)) return 30;
+  return 40;
 }
 
 function expandNum(k) {
-    return k.replace(/\d+/g, f => {
-        if (f.length > 4)
-            return f
-        return ("0000" + f).slice(-4)
-    })
+  return k.replace(/\d+/g, f => {
+    if (f.length > 4) return f;
+    return ("0000" + f).slice(-4);
+  });
 }
 
 function cmpKeys(a, b) {
-    a = a.replace(/ =.*/, "")
-    b = b.replace(/ =.*/, "")
-    if (a == b)
-        return 0
-    let d = keyWeight(a) - keyWeight(b)
-    if (d) return d
-    let aa = expandNum(a)
-    let bb = expandNum(b)
-    if (aa < bb) return -1
-    else if (bb < aa) return 1
-    else if (a < b) return -1
-    else return 1
+  a = a.replace(/ =.*/, "");
+  b = b.replace(/ =.*/, "");
+  if (a == b) return 0;
+  let d = keyWeight(a) - keyWeight(b);
+  if (d) return d;
+  let aa = expandNum(a);
+  let bb = expandNum(b);
+  if (aa < bb) return -1;
+  else if (bb < aa) return 1;
+  else if (a < b) return -1;
+  else return 1;
 }
 
 function showKV(k, v, portSize, data) {
-    let vn = ""
+  let vn = "";
 
-    let kn = configInvKeys[k + ""] || ""
+  let kn = configInvKeys[k + ""] || "";
 
-    if (enums[kn]) {
-        for (let en of Object.keys(enums[kn])) {
-            if (enums[kn][en] == v) {
-                vn = en
-                break
-            }
+  if (enums[kn]) {
+    for (let en of Object.keys(enums[kn])) {
+      if (enums[kn][en] == v) {
+        vn = en;
+        break;
+      }
+    }
+  }
+
+  if (vn == "") {
+    if (/_CFG/.test(kn) || v > 10000) vn = "0x" + v.toString(16);
+    else if (/^PIN_/.test(kn)) {
+      if (data && !isHeaderPin(kn)) {
+        for (let pn of Object.keys(configKeys)) {
+          if (isHeaderPin(pn) && lookupCfg(data, configKeys[pn]) === v) {
+            vn = pn;
+            break;
+          }
         }
-    }
+      }
+      if (!vn) vn = pinToString(v, portSize);
+    } else vn = v + "";
+  }
 
-    if (vn == "") {
-        if (/_CFG/.test(kn) || v > 10000)
-            vn = "0x" + v.toString(16)
-        else if (/^PIN_/.test(kn)) {
-            if (data && !isHeaderPin(kn)) {
-                for (let pn of Object.keys(configKeys)) {
-                    if (isHeaderPin(pn) && lookupCfg(data, configKeys[pn]) === v) {
-                        vn = pn
-                        break
-                    }
-                }
-            }
-            if (!vn)
-                vn = pinToString(v, portSize)
-        } else
-            vn = v + ""
-    }
+  if (kn == "") kn = "_" + k;
 
-    if (kn == "")
-        kn = "_" + k
-
-    return `${kn} = ${vn}`
+  return `${kn} = ${vn}`;
 }
 
 function readConfig(buf) {
-    init()
-    let cfgdata = readWriteConfig(buf, null)
-    let portSize = lookupCfg(cfgdata, configKeys.PINS_PORT_SIZE)
-    let numentries = cfgdata.length >> 1
-    let lines = []
-    for (let i = 0; i < numentries; ++i) {
-        lines.push(showKV(cfgdata[i * 2], cfgdata[i * 2 + 1], portSize, cfgdata))
-    }
-    lines.sort(cmpKeys)
-    return lines.length ? lines.join("\n") : "Empty config."
+  init();
+  let cfgdata = readWriteConfig(buf, null);
+  let portSize = lookupCfg(cfgdata, configKeys.PINS_PORT_SIZE);
+  let numentries = cfgdata.length >> 1;
+  let lines = [];
+  for (let i = 0; i < numentries; ++i) {
+    lines.push(showKV(cfgdata[i * 2], cfgdata[i * 2 + 1], portSize, cfgdata));
+  }
+  lines.sort(cmpKeys);
+  return lines.length ? lines.join("\n") : "Empty config.";
 }
 
 function parsePinName(v, portSize) {
-    let thePort = -1
-    let pin = -1
+  let thePort = -1;
+  let pin = -1;
 
-    v = v.trim()
+  v = v.trim();
 
-    v = v.replace(/^DAL\./, "")
+  v = v.replace(/^DAL\./, "");
 
-    const env = enums["."][v]
-    if (env !== undefined)
-        return env
+  const env = enums["."][v];
+  if (env !== undefined) return env;
 
-    let m = /(.*)([\|+])(.*)/.exec(v)
-    if (m) {
-        let v0 = parsePinName(m[1], portSize)
-        let v1 = parsePinName(m[3], portSize)
-        if (v0 === undefined || v1 === undefined)
-            return undefined
-        v0 = parseInt(v0)
-        v1 = parseInt(v1)
-        return "" + (m[2] == "|" ? v0 | v1 : v0 + v1)
-    }
+  let m = /(.*)([\|+])(.*)/.exec(v);
+  if (m) {
+    let v0 = parsePinName(m[1], portSize);
+    let v1 = parsePinName(m[3], portSize);
+    if (v0 === undefined || v1 === undefined) return undefined;
+    v0 = parseInt(v0);
+    v1 = parseInt(v1);
+    return "" + (m[2] == "|" ? v0 | v1 : v0 + v1);
+  }
 
-    m = /^P([A-Z])_?(\d+)$/.exec(v)
-    if (m) {
-        pin = parseInt(m[2])
-        thePort = m[1].charCodeAt(0) - 65
-    }
+  m = /^P([A-Z])_?(\d+)$/.exec(v);
+  if (m) {
+    pin = parseInt(m[2]);
+    thePort = m[1].charCodeAt(0) - 65;
+  }
 
-    m = /^P(\d+)_(\d+)$/.exec(v)
-    if (m) {
-        pin = parseInt(m[2])
-        thePort = parseInt(m[1])
-    }
+  m = /^P(\d+)_(\d+)$/.exec(v);
+  if (m) {
+    pin = parseInt(m[2]);
+    thePort = parseInt(m[1]);
+  }
 
-    if (thePort >= 0) {
-        if (!portSize) err("PINS_PORT_SIZE not specified, while trying to parse PIN " + v)
-        if (pin >= portSize) err("Pin name invalid: " + v)
-        return (thePort * portSize + pin) + ""
-    }
+  if (thePort >= 0) {
+    if (!portSize)
+      err("PINS_PORT_SIZE not specified, while trying to parse PIN " + v);
+    if (pin >= portSize) err("Pin name invalid: " + v);
+    return thePort * portSize + pin + "";
+  }
 
-    m = /^P_?(\d+)$/.exec(v)
-    if (m)
-        return m[1]
+  m = /^P_?(\d+)$/.exec(v);
+  if (m) return m[1];
 
-    return undefined
+  return undefined;
 }
 
 //***************************************************************************************************************** */
@@ -1054,116 +1052,106 @@ function parsePinName(v, portSize) {
 //***************************************************************************************************************** */
 //***************************************************************************************************************** */
 function patchConfig(buf, cfg) {
-    init()
-    const cfgMap = {}
-    let lineNo = 0
-    for (let line of cfg.split(/\n/)) {
-        lineNo++
-        line = line.replace(/(#|\/\/).*/, "")
-        line = line.trim()
-        if (!line)
-            continue
-        let m = /(\w+)\s*=\s*([^#]+)/.exec(line)
-        if (!m)
-            err("syntax error at config line " + lineNo)
-        let kn = m[1].toUpperCase()
-        let k = configKeys[kn]
-        if (!k && /^_\d+$/.test(kn))
-            k = parseInt(kn.slice(1))
-        if (!k)
-            err("Unrecognized key name: " + kn)
-        cfgMap[k + ""] = m[2]
+  init();
+  const cfgMap = {};
+  let lineNo = 0;
+  for (let line of cfg.split(/\n/)) {
+    lineNo++;
+    line = line.replace(/(#|\/\/).*/, "");
+    line = line.trim();
+    if (!line) continue;
+    let m = /(\w+)\s*=\s*([^#]+)/.exec(line);
+    if (!m) err("syntax error at config line " + lineNo);
+    let kn = m[1].toUpperCase();
+    let k = configKeys[kn];
+    if (!k && /^_\d+$/.test(kn)) k = parseInt(kn.slice(1));
+    if (!k) err("Unrecognized key name: " + kn);
+    cfgMap[k + ""] = m[2];
+  }
+
+  let cfgdata = readWriteConfig(buf, null);
+
+  for (let i = 0; i < cfgdata.length; i += 2) {
+    let k = cfgdata[i] + "";
+    if (!cfgMap.hasOwnProperty(k)) cfgMap[k] = cfgdata[i + 1] + "";
+  }
+
+  const forAll = f => {
+    for (let k of Object.keys(cfgMap)) {
+      let kn = configInvKeys[k];
+      f(kn, k, cfgMap[k]);
     }
+  };
 
-    let cfgdata = readWriteConfig(buf, null)
+  // expand enums
+  forAll((kn, k, v) => {
+    let e = enums[kn];
+    if (e && e[v.toUpperCase()]) cfgMap[k] = e[v] + "";
+  });
 
-    for (let i = 0; i < cfgdata.length; i += 2) {
-        let k = cfgdata[i] + ""
-        if (!cfgMap.hasOwnProperty(k))
-            cfgMap[k] = cfgdata[i + 1] + ""
-    }
+  let portSize = cfgMap[configKeys.PINS_PORT_SIZE];
+  if (portSize) portSize = parseInt(portSize);
+  let portSize0 = portSize;
+  if (portSize) portSize &= 0xfff;
 
-    const forAll = f => {
-        for (let k of Object.keys(cfgMap)) {
-            let kn = configInvKeys[k]
-            f(kn, k, cfgMap[k])
-        }
-    }
+  // expand pin names
+  forAll((kn, k, v) => {
+    let p = parsePinName(v, portSize);
+    if (p) cfgMap[k] = p;
+  });
 
-    // expand enums
+  // expand existing keys
+  for (let i = 0; i < 10; ++i)
     forAll((kn, k, v) => {
-        let e = enums[kn]
-        if (e && e[v.toUpperCase()])
-            cfgMap[k] = e[v] + ""
-    })
+      if (configKeys[v]) {
+        let curr = cfgMap[configKeys[v] + ""];
+        if (curr == null) err("Value not specified, but referenced: " + v);
+        cfgMap[k] = curr;
+      }
+    });
 
-    let portSize = cfgMap[configKeys.PINS_PORT_SIZE]
-    if (portSize) portSize = parseInt(portSize)
-    let portSize0 = portSize
-    if (portSize)
-        portSize &= 0xfff;
-
-    // expand pin names
-    forAll((kn, k, v) => {
-        let p = parsePinName(v, portSize)
-        if (p)
-            cfgMap[k] = p
-    })
-
-    // expand existing keys
-    for (let i = 0; i < 10; ++i)
-        forAll((kn, k, v) => {
-            if (configKeys[v]) {
-                let curr = cfgMap[configKeys[v] + ""]
-                if (curr == null)
-                    err("Value not specified, but referenced: " + v)
-                cfgMap[k] = curr
-            }
-        })
-
-    let changes = ""
-    forAll((kn, k, v) => {
-        v = v.toUpperCase()
-        if (v == "NULL" || v == "UNDEFINED") {
-            let old = lookupCfg(cfgdata, k)
-            changes += "remove " + showKV(k, old, portSize0) + "\n"
-            delete cfgMap[k]
-        }
-    })
-
-    forAll((kn, k, v) => {
-        if (isNaN(parseInt(v)))
-            err("Value not understood: " + v)
-    })
-
-    let sorted = Object.keys(cfgMap)
-    sorted.sort((a, b) => parseInt(a) - parseInt(b))
-    let patch = []
-    for (let k of sorted) {
-        patch.push(parseInt(k))
-        patch.push(parseInt(cfgMap[k]))
+  let changes = "";
+  forAll((kn, k, v) => {
+    v = v.toUpperCase();
+    if (v == "NULL" || v == "UNDEFINED") {
+      let old = lookupCfg(cfgdata, k);
+      changes += "remove " + showKV(k, old, portSize0) + "\n";
+      delete cfgMap[k];
     }
+  });
 
-    for (let i = 0; i < patch.length; i += 2) {
-        let k = patch[i]
-        let v = patch[i + 1]
-        let old = lookupCfg(cfgdata, k)
-        if (old != v) {
-            let newOne = showKV(k, v, portSize0)
-            if (old !== null) {
-                let oldOne = showKV(k, old, portSize0)
-                newOne += " (was: " + oldOne.replace(/.* = /, "") + ")"
-            }
-            changes += newOne + "\n"
-        }
+  forAll((kn, k, v) => {
+    if (isNaN(parseInt(v))) err("Value not understood: " + v);
+  });
+
+  let sorted = Object.keys(cfgMap);
+  sorted.sort((a, b) => parseInt(a) - parseInt(b));
+  let patch = [];
+  for (let k of sorted) {
+    patch.push(parseInt(k));
+    patch.push(parseInt(cfgMap[k]));
+  }
+
+  for (let i = 0; i < patch.length; i += 2) {
+    let k = patch[i];
+    let v = patch[i + 1];
+    let old = lookupCfg(cfgdata, k);
+    if (old != v) {
+      let newOne = showKV(k, v, portSize0);
+      if (old !== null) {
+        let oldOne = showKV(k, old, portSize0);
+        newOne += " (was: " + oldOne.replace(/.* = /, "") + ")";
+      }
+      changes += newOne + "\n";
     }
+  }
 
-    let patched = readWriteConfig(buf, patch)
+  let patched = readWriteConfig(buf, patch);
 
-    return {
-        changes,
-        patched
-    }
+  return {
+    changes,
+    patched
+  };
 }
 //***************************************************************************************************************** */
 //***************************************************************************************************************** */
@@ -1171,44 +1159,40 @@ function patchConfig(buf, cfg) {
 //***************************************************************************************************************** */
 
 function parseHFile(hFile) {
-    if (!hFile) return
-    for (let line of hFile.split(/\n/)) {
-        line = line.trim()
-        let m = /#define\s+CFG_(\w+)\s+(\d+)/.exec(line)
-        if (m) {
-            let k = m[1]
-            let v = parseInt(m[2])
-            configKeys[k] = parseInt(v)
-            configInvKeys[v + ""] = k
-            console.log(`  ${k}: ${v},`)
-        }
+  if (!hFile) return;
+  for (let line of hFile.split(/\n/)) {
+    line = line.trim();
+    let m = /#define\s+CFG_(\w+)\s+(\d+)/.exec(line);
+    if (m) {
+      let k = m[1];
+      let v = parseInt(m[2]);
+      configKeys[k] = parseInt(v);
+      configInvKeys[v + ""] = k;
+      console.log(`  ${k}: ${v},`);
     }
+  }
 }
 
 function init() {
-    for (let k of Object.keys(configKeys)) {
-        let v = configKeys[k]
-        configInvKeys[v + ""] = k
-    }
+  for (let k of Object.keys(configKeys)) {
+    let v = configKeys[k];
+    configInvKeys[v + ""] = k;
+  }
 }
 
 function main() {
-    let uf2 = readBin(process.argv[2])
+  let uf2 = readBin(process.argv[2]);
 
-    if (process.argv[3]) {
-        let cfg = readBin(process.argv[3]).toString("utf8")
-        let r = patchConfig(uf2, cfg)
-        if (!r.changes)
-            console.log("No changes.")
-        else
-            console.log("\nChanges:\n" + r.changes)
-        console.log("# Writing config...")
-        fs.writeFileSync(process.argv[2], r.patched)
-    } else {
-        console.log(readConfig(uf2))
-    }
+  if (process.argv[3]) {
+    let cfg = readBin(process.argv[3]).toString("utf8");
+    let r = patchConfig(uf2, cfg);
+    if (!r.changes) console.log("No changes.");
+    else console.log("\nChanges:\n" + r.changes);
+    console.log("# Writing config...");
+    fs.writeFileSync(process.argv[2], r.patched);
+  } else {
+    console.log(readConfig(uf2));
+  }
 }
 
-
-if (typeof window == "undefined")
-    main()
+if (typeof window == "undefined") main();
