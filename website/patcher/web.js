@@ -64,13 +64,8 @@ function applyPatch() {
     else {
       let buf = currUF2.slice();
       let r = readWriteConfig(buf, newcfg);
-      if (!r.changes) {
-        log("No changes.");
-      } else {
-        log("\nChanges:\n" + r.changes);
-      }
       log("Downloading " + currUF2Name);
-      download(r.patched, currUF2Name);
+      download(r, currUF2Name);
     }
   });
 }
