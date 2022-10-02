@@ -8,7 +8,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#157878">
-  <link rel="stylesheet" href="https://microsoft.github.io/uf2/assets/css/style.css">
+  <link rel="stylesheet" href="style.css">
   <script src="patcher.js"></script>
   <script src="web.js"></script>
   <style>
@@ -46,30 +46,31 @@
   </section>
 
   <section class="main-content">
-    <h2>Your patch</h2>
+    <h2>Your config data</h2>
     <textarea id="patch" spellcheck=false onchange="savePatch(event);"></textarea>
     <a href="#" id="apply" class="btn btn-dl">Apply my patch</a>
 
-    <h2>Information</h2>
-    <pre><code id="currconfig">Drop UF2 or BIN file above to see its config.</code></pre>
+    <h2>Log</h2>
+    <pre><code id="currconfig">Drop UF2 file above to see its config.</code></pre>
 
     <p>
-      <a href="https://github.com/Microsoft/uf2/blob/master/cf2.md">Learn more</a>
-      or
-      <a href="#" onclick="defines()">download configkeys.h</a>.
+      This website was designed so you could add a network SSID and password to the
+      <a href="https://github.com/Squaresweets/TileWorldGBA/blob/main/Pico/Pico%20Firmware/build/pico.uf2">TileWorldGBA</a>
+      uf2, without requiring the user to rebuild the uf2 file.
     </p>
-
+    
     <p>
-      <a href="#" id="rnd">Generate random number</a>
-      <span id="rnd-res"></span>
+      For those who want to do exactly that, just type your network ssid and password seperated by a newline.
+      This is all done locally, so no worries about me stealing your wifi password
+      (If you don't believe me the source code is
+      <a href="https://github.com/Squaresweets/pico-uf2-configurer">here!</a>)
     </p>
 
 
   <footer>
-    <a href="https://makecode.com/privacy" target="_blank" rel="noopener">Privacy &amp; Cookies</a>
-    <a href="https://makecode.com/termsofuse" target="_blank" rel="noopener"> Terms Of Use</a>
-    <a href="https://makecode.com/trademarks" target="_blank" rel="noopener">Trademarks</a>
-    <span>© 2019 Microsoft</span>
+    <a href="https://matthewcollier.co.uk/privacy-policy/" target="_blank" rel="noopener">Privacy</a>
+    <a href="https://microsoft.github.io/uf2/patcher/" target="_blank" rel="noopener">Website design</a>
+    <span>© 2022 Matthew Collier</span>
   </footer>
 
   </section>
